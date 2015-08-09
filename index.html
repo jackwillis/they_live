@@ -35,7 +35,7 @@
           stage.style.display = "block";
 
           html2canvas(stage, {
-            width: 632,
+            width: 640,
             useCORS: true,
             onrendered: function(canvas) {
               stage.style.display = "none";
@@ -128,7 +128,9 @@
         left: 2px;
       }
 
-      #output canvas, #stage { background: white; border: 4px outset goldenrod; }
+      #output canvas, #stage { background: white;  }
+
+      #stage { border: 4px solid goldenrod; }
 
       .reveal { 
         font: bold 16px Arial, Helvetica, sans-serif;
