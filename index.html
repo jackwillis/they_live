@@ -43,7 +43,7 @@
         };
 
         angular.element(document).ready(function () {
-          $scope.generateFreshMemes();
+          //$scope.generateFreshMemes();
         });
       }]);
     </script>
@@ -110,6 +110,7 @@
       .reveal { 
         font: bold 16px Arial, Helvetica, sans-serif;
         width: 100%;
+        color: #444;
         text-align: center;
         padding: 2em 0;
         margin: auto;
@@ -119,6 +120,8 @@
         margin-bottom: -3em;
       }
 
+      .reveal-container .user { color: #555; }
+
       .comment {
         margin-top: -0.7em;
         width: 550px;
@@ -126,8 +129,10 @@
 
       .reveal-container {
         margin: -1em;
-        margin-top: -.5em;
+        margin-top: -.75em;
         padding: 1em;
+        padding-top: 1.125em;
+        background: #eee;
       }
     </style>
   </head>
