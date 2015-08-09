@@ -15,7 +15,7 @@
     <script>
       var theyLiveApp = angular.module("theyLiveApp", []);
 
-      theyLiveApp.controller("TheyLiveCtrl", ["$scope", function ($scope) {
+      theyLiveApp.controller("TheyLiveCtrl", ["$scope", "$http", function ($scope, $http) {
         $scope.meme = {
           user: "Large_Billboard_in_the_City",
           karma: 420,
@@ -47,6 +47,24 @@
         angular.element(document).ready(function () {
           $scope.generateFreshMemes();
         });
+
+        $scope.remoteCommentUrl = "https://www.reddit.com/r/AdviceAnimals/comments/2byyca/reddit_helps_me_focus_on_the_important_things/cjb37ee";
+        $scope.fetchCommentData = function(commentURL) {
+          $http.get(commentURL + ".json")
+            .then(function(response) {
+              var comment = response.data[response.data.length - 1].data.children[0].data;
+              
+              console.log(comment);
+
+              $scope.meme.user = comment.author;
+              $scope.meme.karma = comment.score;
+              $scope.meme.comment = comment.body;
+              $scope.meme.gilded = comment.gilded > 0;
+            }, function(response) {
+              alert("Error fetching reddit comment data: " + response.status + " " + response.statusText);
+            });
+        };
+
       }]);
     </script>
 
@@ -110,7 +128,7 @@
         left: 2px;
       }
 
-      #output canvas, #stage { background: white; }
+      #output canvas, #stage { background: white; border: 4px outset goldenrod; }
 
       .reveal { 
         font: bold 16px Arial, Helvetica, sans-serif;
@@ -144,42 +162,66 @@
 
   <body ng-controller="TheyLiveCtrl">
 
-<h1><em>They Live</em> Meme Generator</h1>
+<h1><em>They Live</em> Meme Generator ☭</h1>
 
 <div class="pure-g">
 
-    <div class="pure-u-1-2">
+    <div class="pure-u-1-3">
 
-<form autocomplete="off" class="pure-form pure-form-stacked">
+    <form autocomplete="off" class="pure-form pure-form-aligned">
 
-      <fieldset>
+      <h2>Fetch comment from permalink URL</h2>
 
+        <div class="pure-control-group">
+          <label for="remote">Reddit Comment Permalink</label>
+          <input id="remote" ng-model="remoteCommentUrl">
+        </div>
+
+        <button ng-click="fetchCommentData(remoteCommentUrl)" class="pure-button">
+            Fetch data from reddit comment
+          </button>
+
+      <h2>Enter comment manually</h2>
+
+        <div class="pure-control-group">
         <label for="user">Username</label>
         <input id="user" ng-model="meme.user">
+        </div>
 
+         <div class="pure-control-group">
         <label for="karma">Karma</label>
         <input id="karma" ng-model="meme.karma">
+        </div>
 
-        <label for="time">Time</label>
-        <input id="time" ng-model="meme.time">
-
+         <div class="pure-control-group">
         <label for="gilded">Gilded</label>
         <input id="gilded" ng-model="meme.gilded" type="checkbox">
+        </div>
 
+        <div class="pure-control-group">
+        <label for="time">Time</label>
+        <input id="time" ng-model="meme.time">
+        </div>
+
+        <div class="pure-control-group">
         <label for="comment">Comment</label>
         <textarea id="comment" ng-model="meme.comment"></textarea>
-
+        </div>
+        
+        <h2> Custom settings</h2>
+        <div class="pure-control-group">
         <label for="image-url">Glasses Image URL</label>
         <input id="image-url" ng-model="meme.imageUrl">
+        </div>
 
+        <div class="pure-control-group">
         <label for="reveal">Reveal</label>
         <textarea id="reveal" ng-model="meme.reveal"></textarea>
+        </div>
 
         <button ng-click="generateFreshMemes(meme)" class="pure-button pure-button-primary">
           Generate fresh memes now!
         </button>
-
-        <p>Right-click on the image -&gt; Save Image As.</p>
 
       </fieldset>
     </form>
@@ -187,7 +229,7 @@
 
     </div>
 
-    <div class="pure-u-1-2">
+    <div class="pure-u-1-3">
 
         <div id="stage">
           <div class="icon-arrows">&nbsp;</div>
@@ -223,19 +265,22 @@
 
     <div id="output"></div>
 
-    </div>
+      <footer>
+      <p>Right-click on the image -&gt; Save Image As.</p>
 
-</div>
-
-    <footer>
-      <p>This meme is a reference to Slavoj Žižek's <a href="https://www.youtube.com/watch?v=TVwKjGbz60k">analysis</a> of the film <em>They Live</em>.</p>
       <p>Further links:
       <ul>
         <li><a href="https://www.reddit.com/r/FULLCOMMUNISM">/r/FULLLCOMMUNISM</a></li>
+        <li><a href="https://www.youtube.com/watch?v=TVwKjGbz60k">Slavoj Žižek's analysis of the film <em>They Live</em></a></li>
       </ul>
       </p>
 
+      <p>This meme generator does not store any data.</p>
+
     </footer>
+    </div>
+
+</div>
 
   </body>
 </html>
