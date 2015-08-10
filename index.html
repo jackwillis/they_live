@@ -7,7 +7,7 @@
     <title>They Live Meme Generator</title>
 
     <script src="https://cdn.rawgit.com/niklasvh/html2canvas/0.5.0-alpha1/dist/html2canvas.min.js"></script>
-    <script src="https://code.angularjs.org/1.4.3/angular.min.js"></script>
+    <script src="https://code.angularjs.org/1.4.3/angular.js"></script>
 
     <!-- PURE ideology -->
     <link rel="stylesheet" href="https://cdn.rawgit.com/yahoo/pure-release/v0.6.0/pure-min.css">
@@ -15,19 +15,18 @@
     <script>
       var theyLiveApp = angular.module("theyLiveApp", []);
 
-      theyLiveApp.controller("TheyLiveCtrl", ["$scope", "$http", function ($scope, $http) {
+      theyLiveApp.controller("TheyLiveCtrl", ["$scope", "$http", "$sce", function ($scope, $http, $sce) {
         $scope.meme = {
           user: "Large_Billboard_in_the_City",
           karma: 420,
           time: "8 hours ago",
           gilded: true,
-          comment: "come to the... CARRIBEAN!",
+          comment: $sce.trustAsHtml("come to the... CARRIBEAN!"),
           imageUrl: "https://i.imgur.com/gVoKjRz.jpg",
           reveal: "MARRY AND REPRODUCE"
         };
 
         $scope.generateFreshMemes = function() {
-          console.log("c");
           var stage = document.getElementById("stage");
           var outputContainer = document.getElementById("output");
 
@@ -44,26 +43,37 @@
           });
         };
 
-        angular.element(document).ready(function () {
-          $scope.generateFreshMemes();
-        });
+        angular.element(document).ready($scope.generateFreshMemes);
 
         $scope.remoteCommentUrl = "https://www.reddit.com/r/AdviceAnimals/comments/2byyca/reddit_helps_me_focus_on_the_important_things/cjb37ee";
         $scope.fetchCommentData = function(commentURL) {
           $http.get(commentURL + ".json")
             .then(function(response) {
               var comment = response.data[response.data.length - 1].data.children[0].data;
-              
-              console.log(comment);
 
               $scope.meme.user = comment.author;
               $scope.meme.karma = comment.score;
-              $scope.meme.comment = comment.body;
+              $scope.meme.comment = $sce.trustAsHtml(decodeRedditHTML(comment.body_html));
               $scope.meme.gilded = comment.gilded > 0;
             }, function(response) {
               alert("Error fetching reddit comment data: " + response.status + " " + response.statusText);
             });
         };
+
+        function escapeHTML(str) {
+          if (!str) return "";
+
+          var e = document.createElement("div");
+          e.innerHTML = str;
+          return e.childNodes[0].nodeValue;
+        }
+
+        function decodeRedditHTML(str) {
+          var e = document.createElement("div");
+          e.innerHTML = escapeHTML(str);
+
+          return e.childNodes[0].innerHTML;
+        }
 
       }]);
     </script>
@@ -223,7 +233,7 @@
         <textarea id="reveal" ng-model="meme.reveal"></textarea>
         </div>
 
-        <button ng-click="generateFreshMemes(meme)" class="pure-button pure-button-primary">
+        <button ng-click="generateFreshMemes()" class="pure-button pure-button-primary">
           Generate fresh memes now!
         </button>
 
@@ -246,7 +256,7 @@
               <span class="time">{{ meme.time }}</span>
               <span class="icon-gilded" ng-if="meme.gilded">&nbsp;</span>
             </p>
-            <p class="comment"> {{ meme.comment }} </p>
+            <p class="comment" ng-bind-html="meme.comment"></p>
           </div>
 
       <img ng-src="{{ meme.imageUrl }}" alt="John Nada removing his sunglasses in the 1988 film, They Live">
@@ -276,7 +286,7 @@
 
       <p>Further links:
       <ul>
-        <li><a href="https://www.reddit.com/r/FULLCOMMUNISM">/r/FULLLCOMMUNISM</a></li>
+        <li><a href="https://www.reddit.com/r/FULLCOMMUNISM">/r/FULLCOMMUNISM</a></li>
         <li><a href="https://www.youtube.com/watch?v=TVwKjGbz60k">Slavoj Žižek's analysis of the film <em>They Live</em></a></li>
       </ul>
       </p>
